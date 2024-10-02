@@ -34,14 +34,13 @@ def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001
 
                     with tf.GradientTape() as tape:                        
                         
-                        if net.conv_net:                            
-                            if net.get_name() == 'CDGRAE':                                                                                                    
-                                if net.adversarial_cls:
-                                    loss, lik, batch_acc, batch_acc_adv = net.neg_elbo(tf.transpose(x, [0, 1, 2, 3]), y, prior_probs=priors, epoch=epoch)
-                                else:
-                                    loss, lik, batch_acc = net.neg_elbo(tf.transpose(x, [0, 1, 2, 3]), y, prior_probs=priors, epoch=epoch)  
-                             elif net.get_name() == 'DDBAE':
-                                    loss, rec, rec2 = net.neg_elbo(tf.reshape(x, [-1, np.prod(dataset.data_dims)]))
+                        if net.get_name() == 'DDAE':                                                                                                    
+                            if net.adversarial_cls:
+                                loss, lik, batch_acc, batch_acc_adv = net.neg_elbo(tf.transpose(x, [0, 1, 2, 3]), y, prior_probs=priors, epoch=epoch)
+                            else:
+                                loss, lik, batch_acc = net.neg_elbo(tf.transpose(x, [0, 1, 2, 3]), y, prior_probs=priors, epoch=epoch)  
+                         elif net.get_name() == 'GDAE':
+                                loss, rec, rec2 = net.neg_elbo(tf.reshape(x, [-1, np.prod(dataset.data_dims)]))
                                   
                     gradients = tape.gradient(loss, net.trainable_variables)
                     optimizer.apply_gradients(zip(gradients, net.trainable_variables))
@@ -51,17 +50,17 @@ def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001
                     pbar.update(1)
                     d = {'batch-loss': loss.numpy()}
                     
-                    if net.get_name() == 'DGRAE':
+                    if net.get_name() == 'DDAE':
                         d['batch-acc'] = batch_acc.numpy()/len(x)
                         if net.adversarial_cls:
                             d['batch-acc-adv'] = batch_acc_adv.numpy()/len(x)
                         d['recon-loss'] = -lik.numpy()                                                            
-                    elif net.get_name() == 'DDBAE':
+                    elif net.get_name() == 'GDAE':
                         d['recon-loss'] = rec.numpy()
                         d['denoising-loss'] = rec2.numpy()
                     pbar.set_postfix(d)                    
 
-            if net.get_name() == 'CDGBAE':                
+            if net.get_name() == 'DDAE':                
                 print("\nEpoch {} | neg-ELBO {:.4f} | Epoch-ACC {:.4f} ".format(epoch + 1, -loss_epoch / dataset.num_training_instances, acc_epoch / dataset.num_training_instances))
                 print("RECOMPUTE MEANS AND EVALUATE MODEL...")
                 means, vars = net.compute_class_params(dataset, p=1)
@@ -111,26 +110,26 @@ def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001
                 save_dir = f"{name}-model-weights"
                 if not os.path.isdir(save_dir):
                     os.makedirs(save_dir)                
-                if net.get_name() == 'CDGBAE':
+                if net.get_name() == 'DDAE':
                     if net.cce:
                         save_dir += '_cce'                    
-                    inf_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mode_{net.mode}_mpdv{str(net.mpdv*10)}_inf_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")
-                    gen_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mode_{net.mode}_mpdv{str(net.mpdv*10)}_gen_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")                                
-                elif name == 'CDDBAE':
-                    denoising_enc_dep_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mpdv{str(net.mpdv*10)}_den_enc_dep_net_latdim_{net.denoise_lat_dim_dep}_epoch_{net.restored_epoch + epoch}.ckpt")
-                    denoising_dec_dep_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mpdv{str(net.mpdv*10)}_den_dec_dep_net_latdim_{net.denoise_lat_dim_dep}_epoch_{net.restored_epoch + epoch}.ckpt")
-                    denoising_enc_ind_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mpdv{str(net.mpdv*10)}_den_enc_ind_net_latdim_{net.denoise_lat_dim_ind}_epoch_{net.restored_epoch + epoch}.ckpt")
-                    denoising_dec_ind_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mpdv{str(net.mpdv*10)}_den_dec_ind_net_latdim_{net.denoise_lat_dim_ind}_epoch_{net.restored_epoch + epoch}.ckpt")
-                    gen_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mode_iiiii_mpdv{str(net.mpdv*10)}_reg_gen_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")                
+                    inf_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mode_{net.mode}_inf_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")
+                    gen_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mode_{net.mode}_gen_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")                                
+                elif name == 'GDAE':
+                    denoising_enc_dep_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_den_enc_dep_net_latdim_{net.denoise_lat_dim_dep}_epoch_{net.restored_epoch + epoch}.ckpt")
+                    denoising_dec_dep_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_den_dec_dep_net_latdim_{net.denoise_lat_dim_dep}_epoch_{net.restored_epoch + epoch}.ckpt")
+                    denoising_enc_ind_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_den_enc_ind_net_latdim_{net.denoise_lat_dim_ind}_epoch_{net.restored_epoch + epoch}.ckpt")
+                    denoising_dec_ind_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_den_dec_ind_net_latdim_{net.denoise_lat_dim_ind}_epoch_{net.restored_epoch + epoch}.ckpt")
+                    gen_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_reg_gen_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")                
                 
-                if name == 'CDRAE':
+                if name == 'DDAE':
                     net.denoising_enc.save_weights(denoising_enc_checkpoint_path)
                     net.denoising_dec.save_weights(denoising_dec_checkpoint_path)
                     net.generative_net.save_weights(gen_checkpoint_path)
                     print(f"Saved model denoising-encoder-net checkpoint for epoch {epoch} to {save_dir} as {denoising_enc_checkpoint_path}")
                     print(f"Saved model denoising-decoder-net checkpoint for epoch {epoch} to {save_dir} as {denoising_dec_checkpoint_path}")
                     print(f"Saved model generative-net checkpoint for epoch {epoch} to {save_dir} as {gen_checkpoint_path}\n")               
-                elif name == 'DDBAE' or name == 'CDDBAE':
+                elif name == 'GDAE':
                     net.denoising_enc_dep.save_weights(denoising_enc_dep_checkpoint_path)
                     net.denoising_dec_dep.save_weights(denoising_dec_dep_checkpoint_path)
                     net.denoising_enc_ind.save_weights(denoising_enc_ind_checkpoint_path)
@@ -146,18 +145,12 @@ def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001
 
 
 
-DGBae = DGBAE(num_nodes=50, num_inf_layers=2, num_gen_layers=3, conv_net=True, output_activation_type=None, activation_type='relu', op_dim=784, task='B',
-              arch=1, enc_block_str=enc_block_s, dec_block_str=dec_block_s, enc_channel_str=enc_ch_s, dec_channel_str=dec_ch_s,
-              adversarial_cls=True, latent_dim=20, num_latents_for_pred=15, mean_prior_distribution_variance=0.9, mode='iiiii',
-              beta1=1, beta2=1, gamma=None, gen_from_means=False, epsilon=30, epsilon2=30, alpha_glob=10, alpha_lab=10, crps=False,
-              categorical_cross_entropy=True, num_classes=8, epoch_param=0, cov_mat_penalty=False, cov_mat_pen_param_ind=100,
-              cov_mat_pen_param_dep=0, pre_trained=False) #150 for 9-12 latent_dims
+DDae = DDAE(num_nodes=50, latent_dim=20, op_dim=784, activation_type='relu', num_inf_layers=2, beta1=None, beta2=None, pre_trained=False, adversarial_cls=False,
+                 num_gen_layers=3, output_activation_type=None, task='B', categorical_cross_entropy=None, num_classes=10, epsilon1=None, epsilon2=None, num_latents_for_pred=10, epoch_param=1, args=None)
               
-DDBAE = DenDiscBestAE(num_nodes=50, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim_dep=10, denoise_lat_dim_ind=4, activation_type='relu', num_inf_layers=2,
-                      mean_prior_distribution_variance=0.9, beta1=None, beta2=None, gamma=None, gen_from_means=False, arch=1,
-                      num_gen_layers=3, num_denoise_layers=3, epoch_restore=29, conv_net=True, output_activation_type=None, task='B',
-                      mode=None, crps=False, alpha=None, pre_trained=False, cov_mat_penalty=False, num_latents_for_pred=15)
+GDae = GDAE(num_nodes=64, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim_dep=8, denoise_lat_dim_ind=3, activation_type='relu', num_inf_layers=2, sigma=0.1, beta1=None, beta2=None, gamma=None,
+                 num_gen_layers=3, num_denoise_layers=3, epoch_restore=None, conv_net=False, output_activation_type=None, task='B', pre_trained=False, num_latents_for_pred=10, args=None)
 
 
-train(DGRae, Bdataset_obj, optimizer='Rmsprop', visualize=False, save=True, seed=1211, step_size=0.001, num_epochs=30)
-
+train(DDae, Bdataset_obj, optimizer='Rmsprop', visualize=False, save=True, seed=1211, step_size=0.001, num_epochs=30)
+train(GDae, Bdataset_obj, optimizer='Rmsprop', visualize=False, save=True, seed=1211, step_size=0.001, num_epochs=30)

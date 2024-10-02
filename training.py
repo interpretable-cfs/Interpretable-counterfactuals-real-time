@@ -123,18 +123,19 @@ def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001
                     denoising_dec_ind_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mpdv{str(net.mpdv*10)}_den_dec_ind_net_latdim_{net.denoise_lat_dim_ind}_epoch_{net.restored_epoch + epoch}.ckpt")
                     gen_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mode_iiiii_mpdv{str(net.mpdv*10)}_reg_gen_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")                
                 
-                if name == 'DGVAE' or name == 'CDGVAE':
-                    net.inference_net_s.save_weights(inf_s_checkpoint_path)
-                    net.inference_net_u.save_weights(inf_u_checkpoint_path)
+                if name == 'CDRAE':
+                    net.denoising_enc.save_weights(denoising_enc_checkpoint_path)
+                    net.denoising_dec.save_weights(denoising_dec_checkpoint_path)
                     net.generative_net.save_weights(gen_checkpoint_path)
-                    print(f"Saved model inference-net_s checkpoint for epoch {epoch} to {save_dir} as {inf_s_checkpoint_path}")
-                    print(f"Saved model inference-net_u checkpoint for epoch {epoch} to {save_dir} as {inf_u_checkpoint_path}")
+                    print(f"Saved model denoising-encoder-net checkpoint for epoch {epoch} to {save_dir} as {denoising_enc_checkpoint_path}")
+                    print(f"Saved model denoising-decoder-net checkpoint for epoch {epoch} to {save_dir} as {denoising_dec_checkpoint_path}")
+                    print(f"Saved model generative-net checkpoint for epoch {epoch} to {save_dir} as {gen_checkpoint_path}\n")               
                 elif name == 'DDBAE' or name == 'CDDBAE':
-                    net.denoising_enc_dep.save_weights(denoising_enc_dep_checkpoint_path)#, save_format='h5')
-                    net.denoising_dec_dep.save_weights(denoising_dec_dep_checkpoint_path)#, save_format='h5')
-                    net.denoising_enc_ind.save_weights(denoising_enc_ind_checkpoint_path)#, save_format='h5')
-                    net.denoising_dec_ind.save_weights(denoising_dec_ind_checkpoint_path)#, save_format='h5')
-                    net.generative_net.save_weights(gen_checkpoint_path)#, save_format='h5')
+                    net.denoising_enc_dep.save_weights(denoising_enc_dep_checkpoint_path)
+                    net.denoising_dec_dep.save_weights(denoising_dec_dep_checkpoint_path)
+                    net.denoising_enc_ind.save_weights(denoising_enc_ind_checkpoint_path)
+                    net.denoising_dec_ind.save_weights(denoising_dec_ind_checkpoint_path)
+                    net.generative_net.save_weights(gen_checkpoint_path)
                     print(f"Saved model denoising-encoder-dep-net checkpoint for epoch {epoch} to {save_dir} as {denoising_enc_dep_checkpoint_path}")
                     print(f"Saved model denoising-decoder-dep-net checkpoint for epoch {epoch} to {save_dir} as {denoising_dec_dep_checkpoint_path}")
                     print(f"Saved model denoising-encoder-ind-net checkpoint for epoch {epoch} to {save_dir} as {denoising_enc_ind_checkpoint_path}")
@@ -142,3 +143,21 @@ def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001
                     print(f"Saved model generative-net checkpoint for epoch {epoch} to {save_dir} as {gen_checkpoint_path}\n")                
 
     print('Training completed!')
+
+
+
+DGBae = DGBAE(num_nodes=50, num_inf_layers=2, num_gen_layers=3, conv_net=True, output_activation_type=None, activation_type='relu', op_dim=784, task='B',
+              arch=1, enc_block_str=enc_block_s, dec_block_str=dec_block_s, enc_channel_str=enc_ch_s, dec_channel_str=dec_ch_s,
+              adversarial_cls=True, latent_dim=20, num_latents_for_pred=15, mean_prior_distribution_variance=0.9, mode='iiiii',
+              beta1=1, beta2=1, gamma=None, gen_from_means=False, epsilon=30, epsilon2=30, alpha_glob=10, alpha_lab=10, crps=False,
+              categorical_cross_entropy=True, num_classes=8, epoch_param=0, cov_mat_penalty=False, cov_mat_pen_param_ind=100,
+              cov_mat_pen_param_dep=0, pre_trained=False) #150 for 9-12 latent_dims
+              
+DDBAE = DenDiscBestAE(num_nodes=50, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim_dep=10, denoise_lat_dim_ind=4, activation_type='relu', num_inf_layers=2,
+                      mean_prior_distribution_variance=0.9, beta1=None, beta2=None, gamma=None, gen_from_means=False, arch=1,
+                      num_gen_layers=3, num_denoise_layers=3, epoch_restore=29, conv_net=True, output_activation_type=None, task='B',
+                      mode=None, crps=False, alpha=None, pre_trained=False, cov_mat_penalty=False, num_latents_for_pred=15)
+
+
+train(DGRae, Bdataset_obj, optimizer='Rmsprop', visualize=False, save=True, seed=1211, step_size=0.001, num_epochs=30)
+

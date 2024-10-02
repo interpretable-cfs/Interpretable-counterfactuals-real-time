@@ -340,7 +340,7 @@ def explain_instance(model, id, adv_class, pred, instance, class_means_dep, clas
         return unique_keys, unique_values
     # GENERATE COUNTERFACTUAL OF LABEL DEPENDENT ENCODING
     
-    cf = generate_counterfactuals_ii(adv_class, instance, model, class_means_dep, class_vars_dep, pred[0], to_print=to_print)   
+    cf = generate_counterfactuals_ii(adv_class, instance, model, class_means_dep, class_vars_dep, pred[0])   
 
     # CREATE NEW INSTANCE WITH LABEL INDEPENDENT ENCODING OF INSTANCE TO EXPLAIN AND LABEL DEPENDENT ENCODING OF CF
 
@@ -398,286 +398,98 @@ def explain_instance(model, id, adv_class, pred, instance, class_means_dep, clas
     recons = GDae_r.decode(tf.convert_to_tensor(new_instance), eval=True)    
     recons_numpy = recons.numpy().reshape([-1] + [28,28,3])
 
-    return recons_numpy, concepts, modes, concepts_pred, modes_pred
+    return recons_numpy, concepts, modes
 
 
-def generate_explanations(num_samples, id, asked_class, model, denoiser, adv_classes_main, save, plot_index, with_concepts, only_pred, file_name, d, size, err, expl_examp):
+def generate_explanations(id, asked_class, model, denoiser, adv_classes_main, save, plot_index, file_name, d):
 
-    ids = [] 
-    if only_pred:
-        ncols = 1
-    else:
-        ncols = 2 #len(adv_classes) + 2 #+ 2 model.num_classes + 2
+    ids = []     
+    ncols = len(adv_classes) + 2 
     dataset_obj = Bdataset_obj
 
     with open(file_name, 'r') as json_file:
         class_concepts = json.load(json_file)
-        #print('CLASS CONCEPTS\n', class_concepts)
     
-
-    if save:
-        #save_dir = f'counterfactual_plots/{d[str(asked_class)]}/{plot_index}/with_pred_concepts'
-        save_dir = f'images for experiment/' #{d[str(asked_class)]}/{plot_index}/with_pred_concepts'
-        if not os.path.isdir(save_dir):
-            print('Creating the following directory: ', save_dir)
-            os.makedirs(save_dir)
-
-    if isinstance(id, int): #and id < 128:
+    if isinstance(id, int): 
         ids.append(id)
-        for x, y in dataset_obj.next_test_batch(): #next_test_batch
+        for x, y in dataset_obj.next_test_batch(): 
             input_images = x
             input_labels = y
             break
     else:
-        for x, y in dataset_obj.next_test_batch(): #next_test_batch
+        for x, y in dataset_obj.next_test_batch(): 
             input_images = x
             input_labels = y
             if asked_class in [0, 1, 2, 3, 4, 5, 6, 7]:
                 ids = []
                 labels = np.argmax(input_labels, axis=1)
                 for i in range(labels.shape[0]):
-                    if labels[i] == asked_class:
-                        if err:
-                            instance = tf.convert_to_tensor(np.reshape(input_images[i], (1,28,28,3)))
-                            pred, prob = model.predict(instance, class_means_dep)
-                            if pred[0] != asked_class:
-                                ids.append(i)
-                        else:
-                            ids.append(i)
+                    if labels[i] == asked_class:                                                
+                        ids.append(i)
                 random.shuffle(ids)
-                #plot_index = ids[0]
             else:
                 ids = random.sample(range(128), num_samples)
             break
 
     print(f'ID: {ids[0]}')
 
-    if only_pred:
-        f, axarr = plt.subplots(1, 1, figsize=(5, 5))
-        instance = tf.convert_to_tensor(np.reshape(input_images[ids[0]], (1,28,28,3)))
-        axarr.imshow(instance[0], cmap="gray")
-        #axarr.set_title(f'Original label: {d[str([np.argmax(input_labels[ids[0]])][0])]} pred as: {d[str(pred[0].numpy())]}')
-        axarr.axis('off')
-        plt.tight_layout()
-        if save and not expl_examp:
-            #save_dir = f'prediction_plots/originals/{d[str(asked_class)]}'
-            save_dir_new = f'images for experiment/originals/{d[str(asked_class)]}'
-            if not os.path.isdir(save_dir_new):
-                print('Creating the following directory: ', save_dir_new)
-                os.makedirs(save_dir_new)
-            print('Saving original: ', save_dir_new + f'/id_{ids[0]}.png')
-            plt.savefig(save_dir_new + f'/id_{ids[0]}.png')
-        plt.show()
-    else:
-        f, axarr = plt.subplots(1, 1, figsize=(5, 5))
-        instance = tf.convert_to_tensor(np.reshape(input_images[ids[0]], (1,28,28,3)))
-        axarr.imshow(instance[0], cmap="gray")
-        #axarr.set_title(f'Original label: {d[str([np.argmax(input_labels[ids[0]])][0])]} pred as: {d[str(pred[0].numpy())]}')
-        axarr.axis('off')
-        plt.tight_layout()
-        if save and not expl_examp:
-            #save_dir_new = f'counterfactual_plots/{d[str(asked_class)]}/{plot_index}/with_pred_concepts/originals'
-            save_dir_new = f'images for experiment/originals/{d[str(asked_class)]}'
-            if not os.path.isdir(save_dir_new):
-                print('Creating the following directory: ', save_dir_new)
-                os.makedirs(save_dir_new)
-            print('Saving original: ', save_dir_new + f'/id_{ids[0]}.png')
-            plt.savefig(save_dir_new + f'/id_{ids[0]}.png')
-        plt.show()
+    f, axarr = plt.subplots(1, 1, figsize=(5, 5))
+    instance = tf.convert_to_tensor(np.reshape(input_images[ids[0]], (1,28,28,3)))
+    axarr.imshow(instance[0], cmap="gray")
+    axarr.axis('off')
+    plt.tight_layout()  
+    plt.show()
 
-    # PLOT COUNTERFACTUALS FOR EACH CLASS
-    for el in adv_classes_main:
-        adv_classes = [el]
-        if only_pred:
-            f, axarr = plt.subplots(1, 1, figsize=(5, 5))
-        else:
-            f, axarr = plt.subplots(figsize=(size*ncols, size*num_samples), nrows=num_samples, ncols=ncols)
-        if num_samples > 1:
-            for i in range(num_samples):
-                instance = tf.convert_to_tensor(np.reshape(input_images[ids[i]], (1,28,28,3)))
-                # COMPUTE PREDICTION AND ENCODING OF INSTANCE TO EXPLAIN
-                pred, prob = model.predict(instance, class_means_dep)
-                print('ORIGINAL PREDICTED CLASS: ', d[f'{pred[0]}'], 'WITH PROB: ', prob)
-                enc_orig = model.encode(instance)
-                if model.get_name() == 'DGVAE' or model.get_name() == 'CDGVAE':
-                    mu_zu = enc_orig[:, :(model.latent_dim-model.num_lab_dep_lat)]
-                    sigma_zu = tf.math.softplus(enc_orig[:, (model.latent_dim-model.num_lab_dep_lat):(model.latent_dim-model.num_lab_dep_lat)*2])
-                    mu_zs = enc_orig[:, (model.latent_dim-model.num_lab_dep_lat)*2:(model.latent_dim*2-model.num_lab_dep_lat)]
-                    sigma_zs = tf.math.softplus(enc_orig[:, (model.latent_dim-model.num_lab_dep_lat)*2+model.num_lab_dep_lat:model.latent_dim*2])
-                    z_sample_u = reparam(mu_zu, sigma_zu, do_sample=True)
-                    z_sample_s = reparam(mu_zs, sigma_zs, do_sample=True)
-                    enc_orig = np.concatenate([z_sample_u, z_sample_s], axis=1)
-                else:
-                    z_sample_u = None
-                # RECONSTRUCT ORIGINAL INSTANCE
-                recons_orig = model.decode(enc_orig) #model.decode(enc_orig)
-                recons_orig_numpy = recons_orig.numpy().reshape([-1] + [28,28,3])
-                axarr[i][0].imshow(instance[0], cmap="gray")
-                axarr[i][0].set_title(f'Original, id: {ids[i]} label: {d[str([np.argmax(input_labels[ids[i]])][0])]}, pred: {d[str(pred[0].numpy())]}')
-                axarr[i][0].axis('off')
-                axarr[i][1].imshow(recons_orig_numpy[0], cmap="gray")
-                axarr[i][1].set_title('Reconstruction')
-                axarr[i][1].axis('off')
-                # EXPLAIN INSTANCE WITH COUNTERFACTUALS
-                for j in range(len(adv_classes)): #range(model.num_classes):
-                    if adv_classes[j] != pred[0]:
-                        recons_numpy = explain_instance(model=model, id=ids[i], adv_class=adv_classes[j], pred=pred, instance=instance, denoiser=denoiser,
-                                                        class_means_dep=class_means_dep, class_vars_dep=class_vars_dep, to_print=False, lab_ind_enc=z_sample_u)
-                        axarr[i][j+2].imshow(recons_numpy[0], cmap="gray")
-                        axarr[i][j+2].set_title(f'CF of class {d[str(adv_classes[j])]}')
-                        axarr[i][j+2].axis('off')
-                    else:
-                        black_image = np.zeros((28, 28))
-                        axarr[i][j+2].imshow(black_image, cmap='gray')
-                        axarr[i][j+2].set_title(f'Predicted class slot. No CF returned')
-                        axarr[i][j+2].axis('off')
-        else:
-            instance = tf.convert_to_tensor(np.reshape(input_images[ids[0]], (1,28,28,3)))
-            # COMPUTE PREDICTION AND ENCODING OF INSTANCE TO EXPLAIN
-            pred, prob = model.predict(instance, class_means_dep)
-            print('ORIGINAL CLASS: ',f'{d[str([np.argmax(input_labels[ids[0]])][0])]}')
-            print('ORIGINAL PREDICTED CLASS: ', d[f'{pred[0]}'], 'WITH PROB: ', prob)
-            enc_orig = model.encode(instance)
-            if model.get_name() == 'DGVAE' or model.get_name() == 'CDGVAE':
-                  mu_zu = enc_orig[:, :(model.latent_dim-model.num_lab_dep_lat)]
-                  sigma_zu = tf.math.softplus(enc_orig[:, (model.latent_dim-model.num_lab_dep_lat):(model.latent_dim-model.num_lab_dep_lat)*2])
-                  mu_zs = enc_orig[:, (model.latent_dim-model.num_lab_dep_lat)*2:(model.latent_dim*2-model.num_lab_dep_lat)]
-                  sigma_zs = tf.math.softplus(enc_orig[:, (model.latent_dim-model.num_lab_dep_lat)*2+model.num_lab_dep_lat:model.latent_dim*2])
-                  z_sample_u = reparam(mu_zu, sigma_zu, do_sample=True)
-                  z_sample_s = reparam(mu_zs, sigma_zs, do_sample=True)
-                  enc_orig = np.concatenate([z_sample_u, z_sample_s], axis=1)
-            else:
-                  z_sample_u = None
-            # RECONSTRUCT ORIGINAL INSTANCE
-            recons_orig = model.decode(enc_orig)
-            recons_orig_numpy = recons_orig.numpy().reshape([-1] + [28,28,3])
-            if only_pred:
-                axarr.imshow(instance[0], cmap="gray")
-                axarr.set_title(f'Model prediction: ' + f'{d[str(pred[0].numpy())]}'.capitalize(), fontsize=15, fontweight='bold') #axarr.set_title(f'Original label: {d[str([np.argmax(input_labels[ids[0]])][0])]} pred as: {d[str(pred[0].numpy())]}')
-                axarr.axis('off')
-            else:
-                axarr[0].imshow(instance[0], cmap="gray")
-                axarr[0].set_title(f'Model prediction: ' + f'{d[str(pred[0].numpy())]}'.capitalize(), fontsize=35, fontweight='bold') #axarr[0].set_title(f'Original label: {d[str([np.argmax(input_labels[ids[0]])][0])]} pred as: {d[str(pred[0].numpy())]}')
-                axarr[0].axis('off')
-            #axarr[1].imshow(recons_orig_numpy[0], cmap="gray")
-            #axarr[1].set_title('Reconstruction')
-            #axarr[1].axis('off')
-            # EXPLAIN INSTANCE WITH COUNTERFACTUALS
-            #print('HERE!!!!')
-            for j in range(len(adv_classes)):
-                if adv_classes[j] != pred[0] or only_pred:
-                    if only_pred and pred[0]==0:
-                        adv_classes[j] += 1
-                    recons_numpy, concepts, modes, concepts_pred, modes_pred = explain_instance(model=model, id=ids[0], adv_class=adv_classes[j], pred=pred, instance=instance, denoiser=denoiser,
-                                                    class_means_dep=class_means_dep, class_vars_dep=class_vars_dep, to_print=False, lab_ind_enc=z_sample_u, class_concepts=class_concepts)
-                    if not only_pred:
-                        axarr[j+1].imshow(recons_numpy[0], cmap="gray")
-                        axarr[j+1].set_title(f'Counter example for class ' + f'{d[str(adv_classes[j])]}'.capitalize(), fontsize=35, fontweight='bold')
-                        #axarr[j+2].text(1, 1, f'{concepts[0]}: {modes[0]}', fontsize=10, color='black')
-                        #f.text(0.7, 0.19, f'{concepts[0]}: {modes[0]}', fontsize=10, color='black', ha='left')
-                        #f.text(0.7, 0.215, f'{concepts[1]}: {modes[1]}', fontsize=10, color='black', ha='left')
-                        #f.text(0.7, 0.24, f'{concepts[2]}: {modes[2]}', fontsize=10, color='black', ha='left')
-                        y_pos = 27.7  # Start position for the first concept
-                        for i in range(len(concepts)):
-                            axarr[j+1].text(0, y_pos, f'{concepts[i]}: '.capitalize() + f'{modes[i]}'.capitalize(), fontsize=30, fontweight='bold', verticalalignment='top', color='black', wrap=True)
-                            y_pos += 1.5
-                        axarr[j+1].axis('off')
+    # PLOT COUNTERFACTUALS FOR EACH ASKED CLASS
+    # RECONSTRUCT ORIGINAL INSTANCE
+    recons_orig = model.decode(enc_orig)
+    recons_orig_numpy = recons_orig.numpy().reshape([-1] + [28,28,3])                        
+    axarr[0].imshow(instance[0], cmap="gray")
+    axarr[0].set_title(f'Model prediction: ' + f'{d[str(pred[0].numpy())]}'.capitalize(), fontsize=35, fontweight='bold') #axarr[0].set_title(f'Original label: {d[str([np.argmax(input_labels[ids[0]])][0])]} pred as: {d[str(pred[0].numpy())]}')
+    axarr[0].axis('off')            
+    # EXPLAIN INSTANCE WITH COUNTERFACTUALS
+    for j in range(len(adv_classes)):
+        if adv_classes[j] != pred[0]:
+            recons_numpy, concepts, modes = explain_instance(model=model, id=ids[0], adv_class=adv_classes[j], pred=pred, instance=instance, denoiser=denoiser,
+                                                                                        class_means_dep=class_means_dep, class_vars_dep=class_vars_dep, lab_ind_enc=z_sample_u, class_concepts=class_concepts)             
+            axarr[j+1].imshow(recons_numpy[0], cmap="gray")
+            axarr[j+1].set_title(f'Counter example for class ' + f'{d[str(adv_classes[j])]}'.capitalize(), fontsize=35, fontweight='bold')                  
+            y_pos = 27.7  # Start position for the first concept
+            for i in range(len(concepts)):
+                axarr[j+1].text(0, y_pos, f'{concepts[i]}: '.capitalize() + f'{modes[i]}'.capitalize(), fontsize=30, fontweight='bold', verticalalignment='top', color='black', wrap=True)
+                y_pos += 1.5
+            axarr[j+1].axis('off')
 
-                    #PREDICTION CONCEPTS
-                    if with_concepts:
-                        if only_pred:
-                            y_pos = 27.7  # Start position for the first concept
-                            for i in range(len(concepts_pred)):
-                                if only_pred:
-                                    axarr.text(0, y_pos, f'{concepts_pred[i]}: '.capitalize() + f'{modes_pred[i]}'.capitalize(), fontsize=15, fontweight='bold', verticalalignment='top', color='black', wrap=True)
-                                else:
-                                    axarr[0].text(0, y_pos, f'{concepts_pred[i]}: '.capitalize()+ f'{modes_pred[i]}'.capitalize(), fontsize=15, fontweight='bold', verticalalignment='top', color='black', wrap=True)
-                                y_pos += 1.4
-                            # Adjust layout for better appearance
+          else:              
+              black_image = np.zeros((28, 28))
+              axarr[j+1].imshow(black_image, cmap='gray')
+              axarr[j+1].set_title(f'Predicted class slot. No CF returned', fontsize=25, fontweight='bold')
+              axarr[j+1].axis('off')
+        
+        plt.subplots_adjust(bottom=-0.35, top=0.3, wspace=0.3)
+        plt.tight_layout()        
 
-                        else:
-                            y_pos = 27.7  # Start position for the first concept
-                            for i in range(len(concepts_pred)):
-                                if only_pred:
-                                    axarr.text(0, y_pos, f'{concepts_pred[i]}: '.capitalize() + f'{modes_pred[i]}'.capitalize(), fontsize=25, fontweight='bold', verticalalignment='top', color='black', wrap=True)
-                                else:
-                                    axarr[0].text(0, y_pos, f'{concepts_pred[i]}: '.capitalize()+ f'{modes_pred[i]}'.capitalize(), fontsize=25, fontweight='bold', verticalalignment='top', color='black', wrap=True)
-                                y_pos += 1
-                            # Adjust layout for better appearance
-                            plt.subplots_adjust(wspace=0.5)
-                        plt.subplots_adjust(wspace=0.5)
-
-                else:
-                    if not only_pred:
-                        black_image = np.zeros((28, 28))
-                        axarr[j+1].imshow(black_image, cmap='gray')
-                        axarr[j+1].set_title(f'Predicted class slot. No CF returned', fontsize=25, fontweight='bold')
-                        axarr[j+1].axis('off')
-
-        if not only_pred:
-            plt.subplots_adjust(bottom=-0.35, top=0.3, wspace=0.3)
-        plt.tight_layout()
-        if save:
-            if only_pred:
-                #save_dir = f'prediction_plots/images_with_concepts/{d[str(asked_class)]}'
-                save_dir = f'images for experiment/explanations_prediction/{d[str(asked_class)]}/id_{ids[0]}'
-                if not os.path.isdir(save_dir):
-                    print('Creating the following directory: ', save_dir)
-                    os.makedirs(save_dir)
-                print('Saving image with prediction concepts: ', save_dir + f'/id_{ids[0]}_pred_{d[str(pred[0].numpy())]}.png')
-                plt.savefig(save_dir + f'/id_{ids[0]}_pred_{d[str(pred[0].numpy())]}.png')
-            else:
-                if with_concepts:
-                    save_dir = f'images for experiment/counterfactuals_explanations_prediction/{d[str(asked_class)]}/id_{ids[0]}'
-                    if expl_examp:
-                        save_dir = f'images for experiment/example_explanation/counterfactuals_explanations_prediction/{d[str(asked_class)]}/id_{ids[0]}'
-                else:
-                    save_dir = f'images for experiment/counterfactuals/{d[str(asked_class)]}/id_{ids[0]}'
-                    if expl_examp:
-                        save_dir = f'images for experiment/example_explanation/counterfactuals/{d[str(asked_class)]}/id_{ids[0]}'
-                if not os.path.isdir(save_dir):
-                    print('Creating the following directory: ', save_dir)
-                    os.makedirs(save_dir)
-                print('Saving counterfactuals as: ', save_dir + f'/cf_{d[str(adv_classes[j])]}_id_{ids[0]}_pred_{d[str(pred[0].numpy())]}.pdf')
-                plt.savefig(save_dir + f'/cf_{d[str(adv_classes[j])]}_id_{ids[0]}_pred_{d[str(pred[0].numpy())]}.pdf')
-        #plt.savefig('cf_pipeline.pdf', format='pdf', bbox_inches='tight')
-        plt.tight_layout()
-        plt.show()
-        if only_pred:
-            break
-
-    #from google.colab import files
-    #files.download('cf_pipeline.pdf')
-
-    # Record the end time
     end_time = time.time()
 
     # Calculate and print the elapsed time
     elapsed_time = end_time - start_time
-    print(f"Elapsed time: {elapsed_time} seconds")
-
-    # PROBLEM bas: 6,13,16,19,11 eos: 10, 14; ery:18; immat:19 ; lymph:; mono:17 ; neutr:;  plat: 6,10,18
+    print(f"Elapsed time: {elapsed_time} seconds")    
 
 
 # CREATE MODEL INSTANCE, SELECT DATASET AND PICK TEST INSTANCE TO EXPLAIN
 import random
-num_samples = 1
-id = None #73 #88
+id = None 
 asked_class = random.sample(range(model.num_classes), 1)[0]
 model = DGBae_r
 denoiser = True
 adv_classes_main = list(range(model.num_classes)) #random.sample(range(model.num_classes), num_samples) #random.sample(range(model.num_classes), 1) # #list(range(model.num_classes))
 save = True
 plot_index = 0
-with_concepts = False #False #if only_pred than also with_concepts must be True!!!
-only_pred = False #False
-size = 11 # 11 form
-err=False
-expl_examp = True
-file_name = 'class_concepts_and_directions2.json' #'\extracted_concepts\class_concepts_and_directions.json'
+size = 11 
+file_name = 'class_concepts_and_directions2.json' 
 d = {'0': 'basophil', '1': 'eosinophil', '2': 'erythroblast', '3': 'immature granulocytes', '4': 'lymphocyte', '5': 'monocyte', '6': 'neutrophil', '7': 'platelet'}
 
-generate_explanations(num_samples, id, asked_class, model, denoiser, adv_classes_main, save, plot_index, with_concepts, only_pred, file_name, d, size=size, err=err, expl_examp=expl_examp)
+generate_explanations(num_samples, id, asked_class, model, denoiser, adv_classes_main, save, plot_index, file_name, d, size=size)
 
                        
                        

@@ -286,11 +286,8 @@ class DDAE(tf.keras.Model):
                 else:
                     samples = [True]
 
-                if samples[0]:
-                    if self.conv_net:
-                        x = tf.transpose(tf.convert_to_tensor(x), [0, 1, 2, 3])
-                    else:
-                        x = tf.reshape(tf.convert_to_tensor(x), [-1, np.prod(dataset_obj.data_dims)])
+                if samples[0]:                    
+                    x = tf.transpose(tf.convert_to_tensor(x), [0, 1, 2, 3])                   
                     latent = self.encode(x)
                     latents.append(latent[:, self.latent_dim-self.num_lab_dep_lat:])
                     labels.append(tf.argmax(y, axis=1))
@@ -324,11 +321,8 @@ class DDAE(tf.keras.Model):
                 else:
                     samples = [False]
 
-            if samples[0]:
-                if self.conv_net:                    
-                    x = tf.transpose(tf.convert_to_tensor(x), [0, 1, 2, 3])
-                else:
-                    x = tf.reshape(tf.convert_to_tensor(x), [-1, np.prod(dataset_obj.data_dims)])
+            if samples[0]:                                  
+                x = tf.transpose(tf.convert_to_tensor(x), [0, 1, 2, 3])
                 latent = self.encode(x)
                 if dependent:
                     latents.append(latent[:, self.latent_dim-self.num_lab_dep_lat:]) #latents.append(latent[:, 5:10]) #
@@ -417,11 +411,8 @@ class DDAE(tf.keras.Model):
         for test_images, test_labels in dataset.next_test_batch(): #next_test_batch
             if test_images.shape[0] > 0:
                 test_images = tf.convert_to_tensor(test_images)
-                test_labels = tf.convert_to_tensor(test_labels)
-                if self.conv_net:
-                    test_predicted_labels, test_probs = self.predict(tf.transpose(test_images, [0, 1, 2, 3]), class_means, prior_probs=prior_probs)
-                else:
-                    test_predicted_labels, test_probs = self.predict(tf.reshape(test_images, [-1, np.prod(dataset.data_dims)]), class_means, prior_probs=prior_probs)
+                test_labels = tf.convert_to_tensor(test_labels)                
+                test_predicted_labels, test_probs = self.predict(tf.transpose(test_images, [0, 1, 2, 3]), class_means, prior_probs=prior_probs)                
 
                 test_true_labels = tf.argmax(test_labels, axis=1)
 
@@ -441,14 +432,9 @@ class DDAE(tf.keras.Model):
             return test_accuracy
 
 
-
-
-
-
-
 class GDAE(tf.keras.Model):
     def __init__(self, num_nodes=50, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim_dep=8, denoise_lat_dim_ind=3, activation_type='relu', num_inf_layers=2, sigma=0.1, beta1=None, beta2=None, gamma=None,
-                 num_gen_layers=3, num_denoise_layers=3, epoch_restore=None, conv_net=False, output_activation_type=None, task='B', pre_trained=False, num_latents_for_pred=10, args=None):
+                 num_gen_layers=3, num_denoise_layers=3, epoch_restore=None, output_activation_type=None, task='B', pre_trained=False, num_latents_for_pred=10, args=None):
         super(GDAE, self).__init__()
 
         self.latent_dim = latent_dim
@@ -457,21 +443,19 @@ class GDAE(tf.keras.Model):
         self.denoise_lat_dim_ind = denoise_lat_dim_ind
         self.output_activation_type = output_activation_type
         self.num_inf_layers = num_inf_layers
-        self.num_gen_layers = num_gen_layers
-        self.conv_net = conv_net                
+        self.num_gen_layers = num_gen_layers                     
         self.pre_trained = pre_trained
         self.epoch_restore = epoch_restore        
         
         self.task = task
-
-        if conv_net:
-            self.model_name = "GDAE"                                                          
-            self.generative_net = ConvDecNet(latent_dim=latent_dim)
-            self.inference_net = ConvEncNet(latent_dim=latent_dim)                        
-            ckp_str_inf = f'CDGBAE-model-weights_cce/{self.task}_inf_net_latdim_{self.latent_dim}_epoch_{self.epoch_restore}.ckpt'
-            ckp_str_gen = f'CDGBAE-model-weights_cce/{self.task}_gen_net_latdim_{self.latent_dim}_epoch_{self.epoch_restore}.ckpt'
-            self.inference_net.load_weights(ckp_str_inf) #= keras.models.load_model(ckp_str_inf) #
-            self.generative_net.load_weights(ckp_str_gen) # = keras.models.load_model(ckp_str_gen) #
+        
+        self.model_name = "GDAE"                                                          
+        self.generative_net = ConvDecNet(latent_dim=latent_dim)
+        self.inference_net = ConvEncNet(latent_dim=latent_dim)                        
+        ckp_str_inf = f'CDGBAE-model-weights_cce/{self.task}_inf_net_latdim_{self.latent_dim}_epoch_{self.epoch_restore}.ckpt'
+        ckp_str_gen = f'CDGBAE-model-weights_cce/{self.task}_gen_net_latdim_{self.latent_dim}_epoch_{self.epoch_restore}.ckpt'
+        self.inference_net.load_weights(ckp_str_inf) 
+        self.generative_net.load_weights(ckp_str_gen) 
 
         for layer in self.inference_net.layers:
             layer.trainable = False       

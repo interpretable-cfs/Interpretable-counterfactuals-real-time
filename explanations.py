@@ -44,24 +44,6 @@ d = {
 
 #### TO REPLICATE THIS EXPLANATORY TECHNIQUE FIRST EXTRACT CONCEPTS LEARNED BY YOUR MODEL VIA LATENT TRAVERSAL
 
-###### EXECUTE ONLY ONCE!!!
-Bdataset_obj = Dataset(batch_size=128, name='B', image_size=28, as_rgb=True)
-
-DDae = DDAE(num_nodes=50, latent_dim=20, op_dim=784, activation_type='relu', num_inf_layers=2, beta1=None, beta2=None, pre_trained=False, adversarial_cls=False,
-            num_gen_layers=3, output_activation_type=None, task='B', categorical_cross_entropy=None, num_classes=10, epsilon1=None, epsilon2=None, num_latents_for_pred=10, 
-            epoch_param=1, args=None)
-
-GDae = GDAE(num_nodes=64, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim_=12, activation_type='relu', num_inf_layers=2, sigma=0.1, 
-            beta1=None, beta2=None, gamma=None,num_gen_layers=3, num_denoise_layers=3, epoch_restore=None, conv_net=False, output_activation_type=None, task='B', 
-            pre_trained=False, num_latents_for_pred=10, args=None)
-
-DDae.restore_weights(task=Bdataset_obj.name, epoch=f'{YOUR EPOCH}') #INSTERT YUR EPOCH HERE
-GDae.restore_weights(task=Bdataset_obj.name, epoch=f'{YOUR EPOCH}') #INSERT YOUR EPOCH HERE
-class_means_dep, class_vars_dep = DDae.compute_class_params(Bdataset_obj, p=1, dependent=True)
-class_means_ind, class_vars_ind = DDae.compute_class_params(Bdataset_obj, p=1, dependent=False)
-########
-
-
 ########################################################################## EXPLANATIONS ####################################################################################
 
 
@@ -453,6 +435,24 @@ def generate_explanations(id, asked_class, model, denoiser, file_name, d):
 
 
 # CREATE MODEL INSTANCE, SELECT DATASET AND PICK TEST INSTANCE TO EXPLAIN
+
+###### EXECUTE ONLY ONCE!!!
+Bdataset_obj = Dataset(batch_size=128, name='B', image_size=28, as_rgb=True)
+
+DDae = DDAE(num_nodes=50, latent_dim=20, op_dim=784, activation_type='relu', num_inf_layers=2, beta1=None, beta2=None, pre_trained=False, adversarial_cls=False,
+            num_gen_layers=3, output_activation_type=None, task='B', categorical_cross_entropy=None, num_classes=10, epsilon1=None, epsilon2=None, num_latents_for_pred=10, 
+            epoch_param=1, args=None)
+
+GDae = GDAE(num_nodes=64, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim_=12, activation_type='relu', num_inf_layers=2, sigma=0.1, 
+            beta1=None, beta2=None, gamma=None,num_gen_layers=3, num_denoise_layers=3, epoch_restore=None, conv_net=False, output_activation_type=None, task='B', 
+            pre_trained=False, num_latents_for_pred=10, args=None)
+
+DDae.restore_weights(task=Bdataset_obj.name, epoch=f'{YOUR EPOCH}') #INSTERT YUR EPOCH HERE
+GDae.restore_weights(task=Bdataset_obj.name, epoch=f'{YOUR EPOCH}') #INSERT YOUR EPOCH HERE
+class_means_dep, class_vars_dep = DDae.compute_class_params(Bdataset_obj, p=1, dependent=True)
+class_means_ind, class_vars_ind = DDae.compute_class_params(Bdataset_obj, p=1, dependent=False)
+########
+
 
 id = None 
 asked_class = random.sample(range(model.num_classes), 1)[0]

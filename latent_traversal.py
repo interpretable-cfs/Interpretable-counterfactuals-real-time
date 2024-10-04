@@ -1,8 +1,30 @@
+import pickle
+import numpy as np
+import pandas as pd
+import json
+import argparse
+import math
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import numpy as np
 import os
-import matplotlib.pyplot as plt
+import shutil
+
 import tensorflow as tf
-import pickle
+import tensorflow.keras.backend as K
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Activation, Flatten
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, UpSampling2D, Conv2DTranspose
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.optimizers import Adam
+import np_utils
+from tensorflow.keras.models import load_model
+from tensorflow.keras.models import Model, model_from_json, Sequential
+from PIL import Image
+from tensorflow.keras.layers import Lambda
+from tensorflow.keras import losses
+
 from models import GDAE
 from import_data import Dataset
 
@@ -53,7 +75,13 @@ def plot_latent_traversal(dataset_obj, net, input_example=None, input_images=Non
 
     plt.show()
 
-
+Bdataset_obj = Dataset(batch_size=128, name='B', image_size=28, as_rgb=True)
+GDae = GDAE(num_nodes=50, latent_dim=20, op_dim=784, activation_type='relu', num_inf_layers=2, beta1=None, beta2=None, pre_trained=False, adversarial_cls=False,
+            num_gen_layers=3, output_activation_type=None, task='B', categorical_cross_entropy=None, num_classes=10, epsilon1=None, epsilon2=None, num_latents_for_pred=10, 
+            epoch_param=1, args=None)
+GDae.restore_weights(task=Bdataset_obj.name, epoch=int(f'{YOUR EPOCH}')) #INSTERT YUR EPOCH HERE
+model = GDae
+dataset_obj = Bdataset_obj
 
 d = {'0': 'basophil', '1': 'eosinophil', '2': 'erythroblast', '3': 'immature granulocytes', '4': 'lymphocyte',
      '5': 'monocyte', '6': 'neutrophil', '7': 'platelet'}

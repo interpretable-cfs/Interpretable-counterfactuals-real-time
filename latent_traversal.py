@@ -3,7 +3,8 @@ import os
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import pickle
-
+from models import GDAE
+from import_data import Dataset
 
 def explain(net, input_images, edit_dim_id, edit_dim_value, edit_z_sample=False):
 
@@ -51,6 +52,7 @@ def plot_latent_traversal(dataset_obj, net, input_example=None, input_images=Non
     plt.subplots_adjust(hspace=0, wspace=0)
 
     plt.show()
+
 
 
 d = {'0': 'basophil', '1': 'eosinophil', '2': 'erythroblast', '3': 'immature granulocytes', '4': 'lymphocyte',

@@ -31,9 +31,9 @@ class DDAE(tf.keras.Model):
 
         self.model_name = "DDAE"                                    
             self.generative_net = ConvDecNet(latent_dim=latent_dim)
-            self.inference_net = ConvEncNet(latent_dim=latent_dim) #determinisitc
-
-        self.mpdv = mean_prior_distribution_variance
+            self.inference_net_s = ConvEncNet(latent_dim=self.num_lab_dep_lat) 
+            self.inference_net_u = ConvEncNet(latent_dim=latent_dim-self.num_lab_dep_lat) 
+        
         self.z_prior_stdv = tf.constant([1.])
         self.z_prior_stdv_ind = tf.constant([1.])        
         self.z_prior_mean = tf.constant([0.])
@@ -66,24 +66,32 @@ class DDAE(tf.keras.Model):
             checkpoint_dir += '_cce'        
 
         if isinstance(epoch, int):
-            inf_str = f'/inf_net_latdim_{self.latent_dim}_epoch_{epoch}'
+            inf_str_s = f'/inf_net_s_latdim_{self.latent_dim}_epoch_{epoch}'
+            inf_str_u = f'/inf_net_u_latdim_{self.latent_dim}_epoch_{epoch}'
             gen_str = f'/gen_net_latdim_{self.latent_dim}_epoch_{epoch}'
             self.restored_epoch = epoch + 1
         else:
             raise ValueError('Provide epoch to restore! Epoch value must be an integer!')        
         
-        inf_str = f'/{task}_'+inf_str[1:]
+        inf_str_s = f'/{task}_'+inf_str[1:]
+        inf_str_u = f'/{task}_'+inf_str[1:]
         gen_str = f'/{task}_'+gen_str[1:]
 
-        inf_latest_checkpoint = checkpoint_dir+inf_str+'.ckpt' 
+        inf_s_latest_checkpoint = checkpoint_dir+inf_str_u+'.ckpt' 
+        if inf_latest_checkpoint:
+            self.inference_net.load_weights(inf_latest_checkpoint) 
+            print(f"Inference network weights restored from {inf_latest_checkpoint}")
+        else:
+            print("No checkpoint found for the inference network.")        
+        inf_u_latest_checkpoint = checkpoint_dir+inf_str_s+'.ckpt' 
         if inf_latest_checkpoint:
             self.inference_net.load_weights(inf_latest_checkpoint) 
             print(f"Inference network weights restored from {inf_latest_checkpoint}")
         else:
             print("No checkpoint found for the inference network.")
-        gen_latest_checkpoint = checkpoint_dir+gen_str+'.ckpt' #max( [os.path.join(checkpoint_dir, f) for f in os.listdir(checkpoint_dir) if gen_str in f], key=os.path.getctime) #'CDGVAE-model-weights/O_gen_net_epoch_14.ckpt.index'
+        gen_latest_checkpoint = checkpoint_dir+gen_str+'.ckpt' 
         if gen_latest_checkpoint:
-            self.generative_net.load_weights(gen_latest_checkpoint) #'VAE-model-weights/gen_net_epoch_4.ckpt'
+            self.generative_net.load_weights(gen_latest_checkpoint) 
             print(f"Generative network weights restored from {gen_latest_checkpoint}")
         else:
             print("No checkpoint found for the generative network.")
@@ -92,8 +100,9 @@ class DDAE(tf.keras.Model):
         return self.model_name
 
     def encode(self, x, eval=False):
-        z = self.inference_net(x, eval=eval)
-        return z
+        z_s = self.inference_net_s(x, eval=eval)
+        z_u = self.inference_net_u(x, eval=eval)
+        return tf.concat((z_s, z_u), axis=1)
 
     def decode(self, z, eval=False):
 
@@ -433,14 +442,13 @@ class DDAE(tf.keras.Model):
 
 
 class GDAE(tf.keras.Model):
-    def __init__(self, num_nodes=50, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim_dep=8, denoise_lat_dim_ind=3, activation_type='relu', num_inf_layers=2, sigma=0.1, beta1=None, beta2=None, gamma=None,
+    def __init__(self, num_nodes=50, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim=12, activation_type='relu', num_inf_layers=2, sigma=0.1, beta1=None, beta2=None, gamma=None,
                  num_gen_layers=3, num_denoise_layers=3, epoch_restore=None, output_activation_type=None, task='B', pre_trained=False, num_latents_for_pred=10, args=None):
         super(GDAE, self).__init__()
 
         self.latent_dim = latent_dim
         self.num_lab_dep_lat = num_latents_for_pred
-        self.denoise_lat_dim_dep = denoise_lat_dim_dep
-        self.denoise_lat_dim_ind = denoise_lat_dim_ind
+        self.denoise_lat_dim = denoise_lat_dim        
         self.output_activation_type = output_activation_type
         self.num_inf_layers = num_inf_layers
         self.num_gen_layers = num_gen_layers                     
@@ -460,14 +468,11 @@ class GDAE(tf.keras.Model):
         for layer in self.inference_net.layers:
             layer.trainable = False       
 
-        self.denoising_enc_dep = FCdenoiseNet(num_nodes=num_denoise_nodes, op_dim=self.denoise_lat_dim_dep, ip_dim=self.num_lab_dep_lat,
+        self.denoising_enc = FCdenoiseNet(num_nodes=num_denoise_nodes, op_dim=self.denoise_lat_dim, ip_dim=self.latent_dim,
                                         activation_type='relu', num_layers=num_denoise_layers)
-        self.denoising_dec_dep = FCdenoiseNet(num_nodes=num_denoise_nodes, op_dim=self.num_lab_dep_lat, ip_dim=denoise_lat_dim_dep,
+        self.denoising_dec = FCdenoiseNet(num_nodes=num_denoise_nodes, op_dim=self.num_lab_dep_lat, ip_dim=denoise_lat_dim_dep,
                                         activation_type='relu', num_layers=num_denoise_layers)
-        self.denoising_enc_ind = FCdenoiseNet(num_nodes=num_denoise_nodes, op_dim=self.denoise_lat_dim_ind, ip_dim=self.latent_dim-self.num_lab_dep_lat,
-                                        activation_type='relu', num_layers=num_denoise_layers)
-        self.denoising_dec_ind = FCdenoiseNet(num_nodes=num_denoise_nodes, op_dim=self.latent_dim-self.num_lab_dep_lat, ip_dim=denoise_lat_dim_ind,
-                                        activation_type='relu', num_layers=num_denoise_layers)
+        
         
         self.sigma = sigma
         self.z_prior_stdv = tf.constant([1.])
@@ -480,44 +485,28 @@ class GDAE(tf.keras.Model):
         checkpoint_dir = self.model_name+'-model-weights'
 
         if isinstance(epoch, int):
-            denoise_enc_dep_str = f'/den_enc_dep_net_latdim_{self.denoise_lat_dim_dep}_epoch_{epoch}'
-            denoise_dec_dep_str = f'/den_dec_dep_net_latdim_{self.denoise_lat_dim_dep}_epoch_{epoch}'
-            denoise_enc_ind_str = f'/den_enc_ind_net_latdim_{self.denoise_lat_dim_ind}_epoch_{epoch}'
-            denoise_dec_ind_str = f'/den_dec_ind_net_latdim_{self.denoise_lat_dim_ind}_epoch_{epoch}'
+            denoise_enc_str = f'/den_enc_net_latdim_{self.denoise_lat_dim}_epoch_{epoch}'
+            denoise_dec_str = f'/den_dec_net_latdim_{self.denoise_lat_dim}_epoch_{epoch}'            
             gen_str = f'/mode_iiiii_mpdv{str(self.mpdv*10)}_reg_gen_net_latdim_{self.latent_dim}_epoch_{epoch}'            
             self.restored_epoch = epoch + 1
         else:
             raise ValueError('Provide epoch to restore! Epoch value must be an integer!')
         if task is not None:            
-            denoise_enc_dep_str = f'/{task}_'+denoise_enc_dep_str[1:]
-            denoise_dec_dep_str = f'/{task}_'+denoise_dec_dep_str[1:]
-            denoise_enc_ind_str = f'/{task}_'+denoise_enc_ind_str[1:]
-            denoise_dec_ind_str = f'/{task}_'+denoise_dec_ind_str[1:]
+            denoise_enc_str = f'/{task}_'+denoise_enc_str[1:]
+            denoise_dec_str = f'/{task}_'+denoise_dec_str[1:]            
             gen_str = f'/{task}_'+gen_str[1:]            
-        denoise_enc_dep_latest_checkpoint = checkpoint_dir+denoise_enc_dep_str+'.ckpt' 
-        if denoise_enc_dep_latest_checkpoint:
-            self.denoising_enc_dep.load_weights(denoise_enc_dep_latest_checkpoint) 
-            print(f"DEnoising encoder network weights restored from {denoise_enc_dep_latest_checkpoint}")
+        denoise_enc_latest_checkpoint = checkpoint_dir+denoise_enc_str+'.ckpt' 
+        if denoise_enc_latest_checkpoint:
+            self.denoising_enc.load_weights(denoise_enc_latest_checkpoint) 
+            print(f"DEnoising encoder network weights restored from {denoise_enc_latest_checkpoint}")
         else:
             print("No checkpoint found for the inference network.")
-        denoise_dec_dep_latest_checkpoint = checkpoint_dir+denoise_dec_dep_str+'.ckpt' 
-        if denoise_dec_dep_latest_checkpoint:
-            self.denoising_dec_dep.load_weights(denoise_dec_dep_latest_checkpoint) 
-            print(f"Denoising decoder network weights restored from {denoise_dec_dep_latest_checkpoint}")
+        denoise_dec_latest_checkpoint = checkpoint_dir+denoise_dec_str+'.ckpt' 
+        if denoise_dec_latest_checkpoint:
+            self.denoising_dec.load_weights(denoise_dec_latest_checkpoint) 
+            print(f"Denoising decoder network weights restored from {denoise_dec_latest_checkpoint}")
         else:
-            print("No checkpoint found for the inference network.")
-        denoise_enc_ind_latest_checkpoint = checkpoint_dir+denoise_enc_ind_str+'.ckpt' 
-        if denoise_enc_ind_latest_checkpoint:
-            self.denoising_enc_ind.load_weights(denoise_enc_ind_latest_checkpoint) 
-            print(f"DEnoising encoder network weights restored from {denoise_enc_ind_latest_checkpoint}")
-        else:
-            print("No checkpoint found for the inference network.")
-        denoise_dec_ind_latest_checkpoint = checkpoint_dir+denoise_dec_ind_str+'.ckpt' 
-        if denoise_dec_ind_latest_checkpoint:
-            self.denoising_dec_ind.load_weights(denoise_dec_ind_latest_checkpoint) 
-            print(f"Denoising decoder network weights restored from {denoise_dec_ind_latest_checkpoint}")
-        else:
-            print("No checkpoint found for the inference network.")
+            print("No checkpoint found for the inference network.")        
         gen_latest_checkpoint = checkpoint_dir+gen_str+'.ckpt' 
         if gen_latest_checkpoint:
             self.generative_net.load_weights(gen_latest_checkpoint) 
@@ -532,19 +521,14 @@ class GDAE(tf.keras.Model):
         z = self.inference_net(x, eval)
         return z
 
-    def denoise_encode(self, x, dep=False, eval=False):
-        if dep:
-            z = self.denoising_enc_dep(x, eval=eval)
-        else:
-            z = self.denoising_enc_ind(x, eval=eval)
+    def denoise_encode(self, x, dep=False, eval=False):        
+        z = self.denoising_enc(x, eval=eval)
         return z
 
-    def denoise_decode(self,x, dep=False, eval=False):
-        if dep:
-            return self.denoising_dec_dep(x, eval=eval)
-        else:
-            return self.denoising_dec_ind(x, eval=eval)
-
+    def denoise_decode(self,x, dep=False, eval=False):        
+        z = self.denoising_dec_dep(x, eval=eval)
+        return z
+                    
     def decode(self, z, eval=False):
         if self.output_activation_type is None:
             return self.generative_net(z, eval=eval)
@@ -559,18 +543,12 @@ class GDAE(tf.keras.Model):
         z = self.encode(x) 
         batch_size = z.shape[0]
       
-        z_ind = z[:, :self.latent_dim-self.num_lab_dep_lat]
-        z_dep = z[:, self.latent_dim-self.num_lab_dep_lat:]        
+        #z_ind = z[:, :self.latent_dim-self.num_lab_dep_lat]
+        #z_dep = z[:, self.latent_dim-self.num_lab_dep_lat:]        
 
-        noisy_z_dep = reparam(z_dep, self.sigma*tf.ones_like(z_dep), do_sample=True) 
-        latents_from_denoiser_dep = self.denoise_encode(noisy_z_dep, dep=True)
-        denoised_latents_dep = self.denoise_decode(latents_from_denoiser_dep, dep=True)
-
-        noisy_z_ind = reparam(z_ind, self.sigma*tf.ones_like(z_ind), do_sample=True) 
-        latents_from_denoiser_ind = self.denoise_encode(noisy_z_ind, dep=False)
-        denoised_latents_ind = self.denoise_decode(latents_from_denoiser_ind, dep=False)
-        
-        denoised_latents = tf.concat((denoised_latents_ind, denoised_latents_dep), axis=1)                        
+        noisy_z = reparam(z, self.sigma*tf.ones_like(z), do_sample=True) 
+        latents_from_denoiser = self.denoise_encode(noisy_z, dep=True)
+        denoised_latents = self.denoise_decode(latents_from_denoiser, dep=True)
 
         return self.decode(denoised_latents), denoised_latents, z 
 

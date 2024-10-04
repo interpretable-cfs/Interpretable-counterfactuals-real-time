@@ -175,6 +175,7 @@ def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001
     print('Training completed!')
 
 
+Bdataset_obj = Dataset(batch_size=128, name='B', image_size=28, as_rgb=True)
 
 DDae = DDAE(num_nodes=50, latent_dim=20, op_dim=784, activation_type='relu', num_inf_layers=2, beta1=None, beta2=None, pre_trained=False, adversarial_cls=False,
                  num_gen_layers=3, output_activation_type=None, task='B', categorical_cross_entropy=None, num_classes=10, epsilon1=None, epsilon2=None, num_latents_for_pred=10, epoch_param=1, args=None)

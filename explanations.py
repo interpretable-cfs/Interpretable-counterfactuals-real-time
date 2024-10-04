@@ -3,50 +3,42 @@
 d = {
       'basophil':{
                   'concepts':{5:'color', 6:'nucleus shape', 7:'color', 8:'nucleus shape', 9:'nucleus density', 10:'membrane', 11:'shape', 12:'contours', 13:'nucleus size', 14:'size', 15:'size', 16:'nucleus density', 17:'membrane', 18:'mass', 19:'color'},
-                  'directions':{5:['less red', 'more red'], 6:['rounder', 'more curved'], 7:['less red', 'more red'], 8:['rounder', 'more curved'], 9:['lighter nucleus', 'havier nucleus'], 10:['bigger', 'smaller'], 11:['more round', 'more oval'], 12:['less polished', 'more polished'], 13:['samller', 'bigger'], 14:['bigger', 'smaller'], 15:['bigger', 'samller'], 16:['less dense', 'more dense'], 17:['bigger', 'smaller'], 18:['less compact', 'more compact'], 19:['more red', 'less red']},
-                  'modes':{5:['dark-red'], 6:['round'], 7:['dark-red'], 8:['round'], 9:['medium-high'], 10:['small'], 11:['round'], 12:['polished'], 13:['large'], 14:['medium'], 15:['medium'], 16:['medium-high'], 17:['small'], 18:['medium'], 19:['dark-red']}
+                  'directions':{5:['less red', 'more red'], 6:['rounder', 'more curved'], 7:['less red', 'more red'], 8:['rounder', 'more curved'], 9:['lighter nucleus', 'havier nucleus'], 10:['bigger', 'smaller'], 11:['more round', 'more oval'], 12:['less polished', 'more polished'], 13:['samller', 'bigger'], 14:['bigger', 'smaller'], 15:['bigger', 'samller'], 16:['less dense', 'more dense'], 17:['bigger', 'smaller'], 18:['less compact', 'more compact'], 19:['more red', 'less red']}
                   },
 
       'eosinophil':{
                   'concepts':{5:'nucleus darkness', 6:'membrane darkness', 7:'color', 8:'membrane darkness', 9:'nucleus density', 10:'shape', 11:'shape', 12:'nucleus size', 13:'color', 14:'size', 15:'color', 16:'size', 17:'membrane darkness', 18:'nucleus density', 19:'contours'},
-                  'directions':{5:['darker', 'lighter'], 6:['darker', 'lighter'], 7:['less red', 'more red'], 8:['darker', 'lighter'], 9:['lighter', 'havier'], 10:['more round', 'less round'], 11:['more round', 'more oval'], 12:['smaller', 'bigger'], 13:['less intense', 'more intense'], 14:['bigger', 'smaller'], 15:['more red', 'less red'], 16:['bigger', 'smaller'], 17:['lighter', 'darker'], 18:['lighter', 'havier'], 19:['more polished', 'less polished']},
-                  'modes':{5:['low'], 6:['light'], 7:['red'], 8:['light'], 9:['low'], 10:['round'], 11:['round'], 12:['medium'], 13:['red'], 14:['large'], 15:['red'], 16:['large'], 17:['light'], 18:['low'], 19:['polished']}
+                  'directions':{5:['darker', 'lighter'], 6:['darker', 'lighter'], 7:['less red', 'more red'], 8:['darker', 'lighter'], 9:['lighter', 'havier'], 10:['more round', 'less round'], 11:['more round', 'more oval'], 12:['smaller', 'bigger'], 13:['less intense', 'more intense'], 14:['bigger', 'smaller'], 15:['more red', 'less red'], 16:['bigger', 'smaller'], 17:['lighter', 'darker'], 18:['lighter', 'havier'], 19:['more polished', 'less polished']}                
                   },
 
       'erythroblast':{
                   'concepts':{5:'darkness', 6:'mass', 7:'membrane size', 8:'nucleus shape', 9:'nucleus size', 10:'membrane size', 11:'mass', 12:'size', 13:'membrane size', 14:'nucleus density', 15:'color', 16:'nucleus size', 17:'darkness', 18:'size', 19:'membrane size'},
-                  'directions':{5:['darker', 'lighter'], 6:['less compact', 'more compact'], 7:['bigger', 'smaller'], 8:['rounder', 'more curved'], 9:['smaller', 'bigger'], 10:['bigger', 'smaller'], 11:['more compact', 'less compact'], 12:['smaller', 'bigger'], 13:['smaller', 'bigger'], 14:['less', 'more'], 15:['more red', 'less red'], 16:['smaller', 'bigger'], 17:['darker', 'lighter'], 18:['smaller', 'bigger'], 19:['bigger', 'smalle']},
-                  'modes':{5:['dark'], 6:['compact'], 7:['medium-small'], 8:['round'], 9:['small'], 10:['medium-small'], 11:['compact'], 12:['small'], 13:['medium-small'], 14:['high'], 15:['dark'], 16:['small'], 17:['dark'], 18:['small'], 19:['medium-small']}
+                  'directions':{5:['darker', 'lighter'], 6:['less compact', 'more compact'], 7:['bigger', 'smaller'], 8:['rounder', 'more curved'], 9:['smaller', 'bigger'], 10:['bigger', 'smaller'], 11:['more compact', 'less compact'], 12:['smaller', 'bigger'], 13:['smaller', 'bigger'], 14:['less', 'more'], 15:['more red', 'less red'], 16:['smaller', 'bigger'], 17:['darker', 'lighter'], 18:['smaller', 'bigger'], 19:['bigger', 'smalle']}
                   },
 
       'immature granulocytes':{                  
                   'concepts':{5:'color', 6:'nucleus density', 7:'membrane darkness', 8:'nucleus shape', 9:'nucleus size', 10:'membrane darkness', 11:'shape', 12:'size', 13:'color', 14:'nucleus density', 15:'color', 16:'membrane size', 17:'membrane size', 18:'nucleus shape', 19:'contours'},                  
-                  'directions':{5:['less red', 'more red'], 6:['less dense', 'more dense'], 7:['lighter', 'darker'], 8:['rounder', 'more curved'], 9:['bigger', 'smaller'], 10:['darker', 'lighter'], 11:['more round', 'more oval'], 12:['smaller', 'bigger'], 13:['less red', 'more red'], 14:['less dense', 'more dense'], 15:['more red', 'less red'], 16:['bigger', 'smaller'], 17:['bigger', 'smaller'], 18:['more curved', 'more round'], 19:['more polished', 'less polished']},                  
-                  'modes':{5:['light'], 6:['medium-light'], 7:['medium'], 8:['irregular'], 9:['medium-large'], 10:['medium'], 11:['irregular'], 12:['big'], 13:['light'], 14:['medium-light'], 15:['light'], 16:['big'], 17:['big'], 18:['irregular'], 19:['unpolished']}
+                  'directions':{5:['less red', 'more red'], 6:['less dense', 'more dense'], 7:['lighter', 'darker'], 8:['rounder', 'more curved'], 9:['bigger', 'smaller'], 10:['darker', 'lighter'], 11:['more round', 'more oval'], 12:['smaller', 'bigger'], 13:['less red', 'more red'], 14:['less dense', 'more dense'], 15:['more red', 'less red'], 16:['bigger', 'smaller'], 17:['bigger', 'smaller'], 18:['more curved', 'more round'], 19:['more polished', 'less polished']}                  
                   },
 
       'lymphocyte':{
                   'concepts':{5:'darkness', 6:'membrane size', 7:'shape', 8:'nucleus shape', 9:'size', 10:'membrane size', 11:'shape', 12:'nucleus size', 13:'membrane size', 14:'denisty', 15:'size', 16:'contours', 17:'nucleus size', 18:'darkness', 19:'membrane size'},
-                  'directions':{5:['darker', 'lighter'], 6:['smaller', 'bigger'], 7:['less regular', 'more regular'], 8:['more round', 'more curved'], 9:['smaller', 'bigger'], 10:['bigger', 'smaller'], 11:['more round', 'more oval'], 12:['smaller', 'bigger'], 13:['less membrane', 'more membrane'], 14:['less dense', 'more dense'], 15:['bigger', 'smaller'], 16:['less polished', 'more polished'], 17:['smaller', 'bigger'], 18:['lighter', 'darker'], 19:['bigger', 'smaller']},
-                  'modes':{5:['medium-dark'], 6:['very small'], 7:['regular'], 8:['round'], 9:['small'], 10:['very small'], 11:['regular'], 12:['small'], 13:['very small'], 14:['high'], 15:['small'], 16:['polished'], 17:['small'], 18:['medium-dark'], 19:['very small']}
-                  },
+                  'directions':{5:['darker', 'lighter'], 6:['smaller', 'bigger'], 7:['less regular', 'more regular'], 8:['more round', 'more curved'], 9:['smaller', 'bigger'], 10:['bigger', 'smaller'], 11:['more round', 'more oval'], 12:['smaller', 'bigger'], 13:['less membrane', 'more membrane'], 14:['less dense', 'more dense'], 15:['bigger', 'smaller'], 16:['less polished', 'more polished'], 17:['smaller', 'bigger'], 18:['lighter', 'darker'], 19:['bigger', 'smaller']}
+                  },                  
 
       'monocyte':{
                   'concepts':{5:'color', 6:'nucleus size', 7:'nucleus size', 8:'nucleus shape', 9:'nucleus density', 10:'membrane size', 11:'shape', 12:'size', 13:'color', 14:'color', 15:'membrane darkness', 16:'nucleus density', 17:'contours', 18:'shape', 19:'contours'},
-                  'directions':{5:['less red', 'more red'], 6:['bigger', 'smaller'], 7:['smaller', 'bigger'], 8:['more round', 'more curved'], 9:['less dense', 'more dense'], 10:['smaller', 'bigger'], 11:['more round', 'more oval'], 12:['smaller', 'bigger'], 13:['less red', 'more red'], 14:['more red', 'less red'], 15:['darker', 'lighter'], 16:['less dense', 'more dense'], 17:['less polished', 'more polished'], 18:['more curved', 'more round'], 19:['more polished', 'less polished']},
-                  'modes':{5:['light'], 6:['large'], 7:['large'], 8:['irregular'], 9:['low'], 10:['large'], 11:['irregular'], 12:['large'], 13:['light'], 14:['light'], 15:['medium-dark'], 16:['low'], 17:['unpolished'], 18:['irregular'], 19:['unpolished']}
+                  'directions':{5:['less red', 'more red'], 6:['bigger', 'smaller'], 7:['smaller', 'bigger'], 8:['more round', 'more curved'], 9:['less dense', 'more dense'], 10:['smaller', 'bigger'], 11:['more round', 'more oval'], 12:['smaller', 'bigger'], 13:['less red', 'more red'], 14:['more red', 'less red'], 15:['darker', 'lighter'], 16:['less dense', 'more dense'], 17:['less polished', 'more polished'], 18:['more curved', 'more round'], 19:['more polished', 'less polished']}                  
                   },
 
       'neutrophil':{
                   'concepts':{5:'nucleus density', 6:'membrane darkness', 7:'color', 8:'nucleus shape', 9:'nucleus density', 10:'mass', 11:'membrane size', 12:'nucleus size', 13:'color', 14:'color', 15:'membrane darkness', 16:'nucleus shape', 17:'contours', 18:'nucleus size', 19:'membrane darkness'},
-                  'directions':{5:['more dense', 'less dense'], 6:['more dark', 'less dark'], 7:['less red', 'more red'], 8:['more round', 'more curved'], 9:['less dense', 'more dense'], 10:['less compact', 'more compact'], 11:['bigger', 'smaller'], 12:['smaller', 'bigger'], 13:['less red', 'more red'], 14:['more red', 'less red'], 15:['darker', 'lighter'], 16:['more curved', 'more round'], 17:['less polished', 'more polished'], 18:['smaller', 'bigger'], 19:['more dark', 'less dark']},
-                  'modes':{5:['low'], 6:['very light'], 7:['light'], 8:['curved'], 9:['low'], 10:['medium-low'], 11:['medium-large'], 12:['medium'], 13:['light'], 14:['light'], 15:['very light'], 16:['curved'], 17:['lightly polished'], 18:['medium'], 19:['very light']}
+                  'directions':{5:['more dense', 'less dense'], 6:['more dark', 'less dark'], 7:['less red', 'more red'], 8:['more round', 'more curved'], 9:['less dense', 'more dense'], 10:['less compact', 'more compact'], 11:['bigger', 'smaller'], 12:['smaller', 'bigger'], 13:['less red', 'more red'], 14:['more red', 'less red'], 15:['darker', 'lighter'], 16:['more curved', 'more round'], 17:['less polished', 'more polished'], 18:['smaller', 'bigger'], 19:['more dark', 'less dark']}                  
                   },
 
       'platelet':{
                   'concepts':{5:'color', 6:'darkness', 7:'darkness', 8:'density', 9:'size', 10:'size', 11:'membrane', 12:'color', 13:'contours', 14:'color', 15:'color', 16:'nucleus size', 17:'darkness', 18:'size', 19:'membrane'},
-                  'directions':{5:['less red', 'more red'], 6:['darker', 'lighter'], 7:['darker', 'lighter'], 8:['more dense', 'less dense'], 9:['smaller', 'bigger'], 10:['bigger', 'smaller'], 11:['more membrane', 'less membrane'], 12:['less red', 'more red'], 13:['more polished', 'less polished'], 14:['more red', 'less red'], 15:['more color', 'less color'], 16:['smaller', 'bigger'], 17:['more dark', 'less dark'], 18:['smaller', 'bigger'], 19:['more membrane', 'less membrane']},
-                  'modes':{5:['light red'], 6:['very light'], 7:['very light'], 8:['low'], 9:['very small'], 10:['very small'], 11:['small'], 12:['light red'], 13:['lightly polished'], 14:['light red'], 15:['light red'], 16:['very small'], 17:['very light'], 18:['very small'], 19:['small']}
+                  'directions':{5:['less red', 'more red'], 6:['darker', 'lighter'], 7:['darker', 'lighter'], 8:['more dense', 'less dense'], 9:['smaller', 'bigger'], 10:['bigger', 'smaller'], 11:['more membrane', 'less membrane'], 12:['less red', 'more red'], 13:['more polished', 'less polished'], 14:['more red', 'less red'], 15:['more color', 'less color'], 16:['smaller', 'bigger'], 17:['more dark', 'less dark'], 18:['smaller', 'bigger'], 19:['more membrane', 'less membrane']}                  
                   }
     }
 
@@ -59,12 +51,12 @@ DDae = DDAE(num_nodes=50, latent_dim=20, op_dim=784, activation_type='relu', num
             num_gen_layers=3, output_activation_type=None, task='B', categorical_cross_entropy=None, num_classes=10, epsilon1=None, epsilon2=None, num_latents_for_pred=10, 
             epoch_param=1, args=None)
 
-GDae = GDAE(num_nodes=64, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim_dep=8, denoise_lat_dim_ind=3, activation_type='relu', num_inf_layers=2, sigma=0.1, 
+GDae = GDAE(num_nodes=64, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim_=12, activation_type='relu', num_inf_layers=2, sigma=0.1, 
             beta1=None, beta2=None, gamma=None,num_gen_layers=3, num_denoise_layers=3, epoch_restore=None, conv_net=False, output_activation_type=None, task='B', 
             pre_trained=False, num_latents_for_pred=10, args=None)
 
-DDae_r.restore_weights(task=Bdataset_obj.name, epoch=#your epoch) 
-GDae_r.restore_weights(task=Bdataset_obj.name, epoch=#your epoch)
+DDae.restore_weights(task=Bdataset_obj.name, epoch=f'{YOUR EPOCH}') #INSTERT YUR EPOCH HERE
+GDae.restore_weights(task=Bdataset_obj.name, epoch=f'{YOUR EPOCH}') #INSERT YOUR EPOCH HERE
 class_means_dep, class_vars_dep = DDae.compute_class_params(Bdataset_obj, p=1, dependent=True)
 class_means_ind, class_vars_ind = DDae.compute_class_params(Bdataset_obj, p=1, dependent=False)
 ########
@@ -77,6 +69,7 @@ import numpy as np
 np.set_printoptions(suppress=True)
 import math
 import time
+import random
 
 
 # Record the start time
@@ -115,8 +108,7 @@ def generate_counterfactuals_ii(adv_class, instance, model, class_means, class_v
     new_vector3 = np.array(mean2)
     rotation_matrices = []
     # Compute mean point between adversarial mean and random instance to explain
-    M = (mean2 + random_point)/ 2
-    
+    M = (mean2 + random_point)/ 2    
 
     # Zero the last axis
     for i in range(0, n-1):
@@ -138,7 +130,6 @@ def generate_counterfactuals_ii(adv_class, instance, model, class_means, class_v
         new_vector2 = np.dot(rotation_matrix, new_vector2) + M
         new_vector3 = np.dot(rotation_matrix, new_vector3) + M
 
-
     # Find intercept between decision boundary and segment connecting adversarial mean with instance to explain
     A = new_vector1 #mean1
     B = new_vector3 #mean2
@@ -150,7 +141,6 @@ def generate_counterfactuals_ii(adv_class, instance, model, class_means, class_v
     intersection_point = np.zeros_like(mid)
     intersection_point[-1] = coord    
     print('INTERSECTION:     ', coord) #, nor, AB[-1], mid)
-
 
     #### EXPLANATION ####
     std = 1. 
@@ -322,8 +312,7 @@ def generate_counterfactuals_ii(adv_class, instance, model, class_means, class_v
 
 
 
-def explain_instance(model, id, adv_class, pred, instance, class_means_dep, class_vars_dep, to_print=True, lab_ind_enc=None, denoiser=False, class_concepts=None):    
-    d = {'0': 'basophil', '1': 'eosinophil', '2': 'erythroblast', '3': 'immature granulocytes', '4': 'lymphocyte', '5': 'monocyte', '6': 'neutrophil', '7': 'platelet'}
+def explain_instance(model, id, adv_class, pred, instance, class_means_dep, class_vars_dep, d, to_print=True, lab_ind_enc=None, denoiser=False, class_concepts=None):        
 
     def remove_duplicates(keys, values):
         unique_association = {}
@@ -350,9 +339,7 @@ def explain_instance(model, id, adv_class, pred, instance, class_means_dep, clas
     lab_dep_enc = tf.reshape(lab_dep_enc, [model.num_lab_dep_lat])    
 
     # EXTRACT DICTIONARY OF CONCEPTS FOR PREDICTED CLASS
-    class_predicted = pred[0]    
-    d_concepts_pred = class_concepts[d[f'{class_predicted}']]['concepts']
-    d_directions_pred = class_concepts[d[f'{class_predicted}']]['modes'] 
+    class_predicted = pred[0]            
     d_concepts = class_concepts[d[f'{adv_class}']]['concepts'] 
     d_directions = class_concepts[d[f'{adv_class}']]['directions']
 
@@ -361,30 +348,25 @@ def explain_instance(model, id, adv_class, pred, instance, class_means_dep, clas
     exponent = -0.5 * squared_differences
     probability_density_orig = (1 / (tf.sqrt(2 * np.pi) * class_vars_dep[class_predicted])) * tf.exp(exponent)             
 
-    squared_differences_cf = tf.square((cf - class_means_dep[adv_class])/class_vars_dep[adv_class] )    #tf.square(lab_dep_enc - cf)
+    squared_differences_cf = tf.square((cf - class_means_dep[adv_class])/class_vars_dep[adv_class] )    
     exponent = -0.5 * squared_differences_cf
     probability_density_cf = (1 / (tf.sqrt(2 * np.pi) * class_vars_dep[adv_class])) * tf.exp(exponent)
 
-    squared_differences_orig = tf.square(lab_dep_enc*probability_density_orig - cf*probability_density_cf) #tf.square((lab_dep_enc - cf)*probability_density_cf) #tf.square(lab_dep_enc-cf) #
-    weighted_squared_differences_orig = squared_differences_orig 
-    _, indices_orig = tf.nn.top_k(weighted_squared_differences_orig, k=3)
+    weighted_squared_differences = tf.square(lab_dep_enc*probability_density_orig - cf*probability_density_cf)     
+    _, indices = tf.nn.top_k(weighted_squared_differences, k=3)
 
     # Print the squared differences and the indices of the 3 largest
-    print("\nSquared Differences:", squared_differences_orig.numpy())    
-    print("Indices of the 3 largest squared differences:", indices_orig.numpy())        
+    print("\nSquared Differences:", weighted_squared_differences.numpy())    
+    print("Indices of the 3 largest squared differences:", indices.numpy())        
 
     lab_dep_enc_numpy = lab_dep_enc.numpy()
     class_means_dep_numpy = class_means_dep[adv_class].numpy()
     cf_numpy = cf.numpy()
-    indices_numpy = indices_orig.numpy() 
-    indices_pred_numpy = indices_pred.numpy()  
+    indices_numpy = indices.numpy()     
     directions = [1 if lab_dep_enc_numpy[index]<cf_numpy[index] else 0 for index in indices_numpy] #first value is for increase second for deacrease of latent direction    
-    concepts = [d_concepts[f'{indices_numpy[i]+5}'] for i in range(3) ]
-    concepts_pred = [d_concepts_pred[f'{indices_pred_numpy[i]+5}'] for i in range(3) ]
-    modes = [d_directions[f'{indices_numpy[i]+5}'][directions[i]] for i in range(3) ]
-    modes_pred = [d_directions_pred[f'{indices_pred_numpy[i]+5}'][0] for i in range(3) ]
-    concepts, modes = remove_duplicates(concepts, modes)
-    concepts_pred, modes_pred = remove_duplicates(concepts_pred, modes_pred)
+    concepts = [d_concepts[f'{indices_numpy[i]+5}'] for i in range(3) ]    
+    modes = [d_directions[f'{indices_numpy[i]+5}'][directions[i]] for i in range(3) ]    
+    concepts, modes = remove_duplicates(concepts, modes)    
 
     new_instance = np.concatenate( (np.reshape(lab_ind_enc, (1,model.latent_dim-model.num_lab_dep_lat)), np.reshape(cf, (1,model.num_lab_dep_lat))), axis=1)
     print('\nINSTANCE TO GENERATE: ', new_instance, new_instance.shape)
@@ -395,16 +377,16 @@ def explain_instance(model, id, adv_class, pred, instance, class_means_dep, clas
     pred, prob = model.predict(input, class_means_dep, from_encoding=True)
     print('\nCF PREDICTED CLASS: ', d[f'{pred[0]}'], ' WITH PROBABILITY: ', prob, '\n')
 
-    recons = GDae_r.decode(tf.convert_to_tensor(new_instance), eval=True)    
+    recons = denoiser.decode(tf.convert_to_tensor(new_instance), eval=True)    
     recons_numpy = recons.numpy().reshape([-1] + [28,28,3])
 
     return recons_numpy, concepts, modes
 
 
-def generate_explanations(id, asked_class, model, denoiser, adv_classes_main, save, plot_index, file_name, d):
+def generate_explanations(id, asked_class, model, denoiser, file_name, d):
 
     ids = []     
-    ncols = len(adv_classes) + 2 
+    ncols = len(adv_classes) + 1
     dataset_obj = Bdataset_obj
 
     with open(file_name, 'r') as json_file:
@@ -433,24 +415,19 @@ def generate_explanations(id, asked_class, model, denoiser, adv_classes_main, sa
 
     print(f'ID: {ids[0]}')
 
-    f, axarr = plt.subplots(1, 1, figsize=(5, 5))
-    instance = tf.convert_to_tensor(np.reshape(input_images[ids[0]], (1,28,28,3)))
-    axarr.imshow(instance[0], cmap="gray")
-    axarr.axis('off')
-    plt.tight_layout()  
-    plt.show()
-
     # PLOT COUNTERFACTUALS FOR EACH ASKED CLASS
+    f, axarr = plt.subplots(figsize=(size*ncols, size), nrows=1, ncols=ncols)
+
     # RECONSTRUCT ORIGINAL INSTANCE
     recons_orig = model.decode(enc_orig)
     recons_orig_numpy = recons_orig.numpy().reshape([-1] + [28,28,3])                        
     axarr[0].imshow(instance[0], cmap="gray")
-    axarr[0].set_title(f'Model prediction: ' + f'{d[str(pred[0].numpy())]}'.capitalize(), fontsize=35, fontweight='bold') #axarr[0].set_title(f'Original label: {d[str([np.argmax(input_labels[ids[0]])][0])]} pred as: {d[str(pred[0].numpy())]}')
+    axarr[0].set_title(f'Model prediction: ' + f'{d[str(pred[0].numpy())]}'.capitalize(), fontsize=35, fontweight='bold') 
     axarr[0].axis('off')            
     # EXPLAIN INSTANCE WITH COUNTERFACTUALS
     for j in range(len(adv_classes)):
         if adv_classes[j] != pred[0]:
-            recons_numpy, concepts, modes = explain_instance(model=model, id=ids[0], adv_class=adv_classes[j], pred=pred, instance=instance, denoiser=denoiser,
+            recons_numpy, concepts, modes = explain_instance(model=model, id=ids[0], adv_class=adv_classes[j], pred=pred, instance=instance, denoiser=denoiser, d,
                                                                                         class_means_dep=class_means_dep, class_vars_dep=class_vars_dep, lab_ind_enc=z_sample_u, class_concepts=class_concepts)             
             axarr[j+1].imshow(recons_numpy[0], cmap="gray")
             axarr[j+1].set_title(f'Counter example for class ' + f'{d[str(adv_classes[j])]}'.capitalize(), fontsize=35, fontweight='bold')                  
@@ -459,15 +436,14 @@ def generate_explanations(id, asked_class, model, denoiser, adv_classes_main, sa
                 axarr[j+1].text(0, y_pos, f'{concepts[i]}: '.capitalize() + f'{modes[i]}'.capitalize(), fontsize=30, fontweight='bold', verticalalignment='top', color='black', wrap=True)
                 y_pos += 1.5
             axarr[j+1].axis('off')
-
-          else:              
-              black_image = np.zeros((28, 28))
-              axarr[j+1].imshow(black_image, cmap='gray')
-              axarr[j+1].set_title(f'Predicted class slot. No CF returned', fontsize=25, fontweight='bold')
-              axarr[j+1].axis('off')
+        else:              
+            black_image = np.zeros((28, 28))
+            axarr[j+1].imshow(black_image, cmap='gray')
+            axarr[j+1].set_title(f'Predicted class slot. No CF returned', fontsize=25, fontweight='bold')
+            axarr[j+1].axis('off')
         
-        plt.subplots_adjust(bottom=-0.35, top=0.3, wspace=0.3)
-        plt.tight_layout()        
+    plt.subplots_adjust(bottom=-0.35, top=0.3, wspace=0.3)
+    plt.tight_layout()        
 
     end_time = time.time()
 
@@ -477,22 +453,16 @@ def generate_explanations(id, asked_class, model, denoiser, adv_classes_main, sa
 
 
 # CREATE MODEL INSTANCE, SELECT DATASET AND PICK TEST INSTANCE TO EXPLAIN
-import random
+
 id = None 
 asked_class = random.sample(range(model.num_classes), 1)[0]
-model = DGBae_r
-denoiser = True
-adv_classes_main = list(range(model.num_classes)) #random.sample(range(model.num_classes), num_samples) #random.sample(range(model.num_classes), 1) # #list(range(model.num_classes))
-save = True
-plot_index = 0
+model = DDae
+denoiser = GDae
+adv_classes_main = list(range(model.num_classes)) 
 size = 11 
 file_name = 'class_concepts_and_directions2.json' 
 d = {'0': 'basophil', '1': 'eosinophil', '2': 'erythroblast', '3': 'immature granulocytes', '4': 'lymphocyte', '5': 'monocyte', '6': 'neutrophil', '7': 'platelet'}
 
-generate_explanations(num_samples, id, asked_class, model, denoiser, adv_classes_main, save, plot_index, file_name, d, size=size)
-
+generate_explanations(id, asked_class, model, denoiser, file_name, d, size=size)                       
                        
                        
-                       
-
-

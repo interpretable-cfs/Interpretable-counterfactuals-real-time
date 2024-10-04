@@ -84,7 +84,7 @@ import time
 import random
 
 from models import DDAE, GDAE
-from import_data import 
+from import_data import Dataset
 
 # Record the start time
 start_time = time.time()

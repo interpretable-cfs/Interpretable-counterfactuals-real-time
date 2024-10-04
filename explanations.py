@@ -479,8 +479,8 @@ GDae = GDAE(num_nodes=64, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoi
             beta1=None, beta2=None, gamma=None,num_gen_layers=3, num_denoise_layers=3, epoch_restore=None, conv_net=False, output_activation_type=None, task='B', 
             pre_trained=False, num_latents_for_pred=10, args=None)
 
-DDae.restore_weights(task=Bdataset_obj.name, epoch=f'{YOUR EPOCH}') #INSTERT YUR EPOCH HERE
-GDae.restore_weights(task=Bdataset_obj.name, epoch=f'{YOUR EPOCH}') #INSERT YOUR EPOCH HERE
+DDae.restore_weights(task=Bdataset_obj.name, epoch=int(f'{YOUR EPOCH}')) #INSTERT YUR EPOCH HERE
+GDae.restore_weights(task=Bdataset_obj.name, epoch=int(f'{YOUR EPOCH}')) #INSERT YOUR EPOCH HERE
 class_means_dep, class_vars_dep = DDae.compute_class_params(Bdataset_obj, p=1, dependent=True)
 class_means_ind, class_vars_ind = DDae.compute_class_params(Bdataset_obj, p=1, dependent=False)
 ########

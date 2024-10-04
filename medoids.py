@@ -29,6 +29,7 @@ def find_medoids(dataset_obj, model, class_means_dep):
 
 
 model = DDae
+Bdataset_obj = Dataset(batch_size=128, name='B', image_size=28, as_rgb=True)
 dataset_obj = Bdataset_obj
 
 medoids = find_medoids(dataset_obj, model, class_means_dep)

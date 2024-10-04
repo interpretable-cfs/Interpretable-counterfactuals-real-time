@@ -40,7 +40,7 @@ def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001
                             else:
                                 loss, lik, batch_acc = net.neg_elbo(tf.transpose(x, [0, 1, 2, 3]), y, prior_probs=priors, epoch=epoch)  
                          elif net.get_name() == 'GDAE':
-                                loss, rec, rec2 = net.neg_elbo(tf.reshape(x, [-1, np.prod(dataset.data_dims)]))
+                                loss, rec, rec2 = net.neg_elbo(tf.transpose(x, [0, 1, 2, 3]))
                                   
                     gradients = tape.gradient(loss, net.trainable_variables)
                     optimizer.apply_gradients(zip(gradients, net.trainable_variables))
@@ -113,32 +113,27 @@ def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001
                 if net.get_name() == 'DDAE':
                     if net.cce:
                         save_dir += '_cce'                    
-                    inf_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mode_{net.mode}_inf_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")
+                    inf_s_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mode_{net.mode}_inf_s_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")
+                    inf_u_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mode_{net.mode}_inf_u_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")
                     gen_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_mode_{net.mode}_gen_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")                                
                 elif name == 'GDAE':
-                    denoising_enc_dep_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_den_enc_dep_net_latdim_{net.denoise_lat_dim_dep}_epoch_{net.restored_epoch + epoch}.ckpt")
-                    denoising_dec_dep_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_den_dec_dep_net_latdim_{net.denoise_lat_dim_dep}_epoch_{net.restored_epoch + epoch}.ckpt")
-                    denoising_enc_ind_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_den_enc_ind_net_latdim_{net.denoise_lat_dim_ind}_epoch_{net.restored_epoch + epoch}.ckpt")
-                    denoising_dec_ind_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_den_dec_ind_net_latdim_{net.denoise_lat_dim_ind}_epoch_{net.restored_epoch + epoch}.ckpt")
+                    denoising_enc_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_den_enc_net_latdim_{net.denoise_lat_dim_dep}_epoch_{net.restored_epoch + epoch}.ckpt")
+                    denoising_dec_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_den_dec_net_latdim_{net.denoise_lat_dim_dep}_epoch_{net.restored_epoch + epoch}.ckpt")                                        
                     gen_checkpoint_path = os.path.join(save_dir, f"{dataset.name}_reg_gen_net_latdim_{net.latent_dim}_epoch_{net.restored_epoch + epoch}.ckpt")                
                 
                 if name == 'DDAE':
-                    net.denoising_enc.save_weights(denoising_enc_checkpoint_path)
-                    net.denoising_dec.save_weights(denoising_dec_checkpoint_path)
+                    net.inference_net_s.save_weights(inf_s_checkpoint_path)
+                    net.inference_net_u.save_weights(inf_u_checkpoint_path)
                     net.generative_net.save_weights(gen_checkpoint_path)
-                    print(f"Saved model denoising-encoder-net checkpoint for epoch {epoch} to {save_dir} as {denoising_enc_checkpoint_path}")
-                    print(f"Saved model denoising-decoder-net checkpoint for epoch {epoch} to {save_dir} as {denoising_dec_checkpoint_path}")
-                    print(f"Saved model generative-net checkpoint for epoch {epoch} to {save_dir} as {gen_checkpoint_path}\n")               
+                    print(f"Saved model inference-net_s checkpoint for epoch {epoch} to {save_dir} as {inf_s_checkpoint_path}")
+                    print(f"Saved model inference-net_u checkpoint for epoch {epoch} to {save_dir} as {inf_u_checkpoint_path}")   
+                    print(f"Saved model generative-net checkpoint for epoch {epoch} to {save_dir} as {gen_checkpoint_path}\n")         
                 elif name == 'GDAE':
-                    net.denoising_enc_dep.save_weights(denoising_enc_dep_checkpoint_path)
-                    net.denoising_dec_dep.save_weights(denoising_dec_dep_checkpoint_path)
-                    net.denoising_enc_ind.save_weights(denoising_enc_ind_checkpoint_path)
-                    net.denoising_dec_ind.save_weights(denoising_dec_ind_checkpoint_path)
+                    net.denoising_enc.save_weights(denoising_enc_checkpoint_path)
+                    net.denoising_dec.save_weights(denoising_dec_checkpoint_path)                    
                     net.generative_net.save_weights(gen_checkpoint_path)
-                    print(f"Saved model denoising-encoder-dep-net checkpoint for epoch {epoch} to {save_dir} as {denoising_enc_dep_checkpoint_path}")
-                    print(f"Saved model denoising-decoder-dep-net checkpoint for epoch {epoch} to {save_dir} as {denoising_dec_dep_checkpoint_path}")
-                    print(f"Saved model denoising-encoder-ind-net checkpoint for epoch {epoch} to {save_dir} as {denoising_enc_ind_checkpoint_path}")
-                    print(f"Saved model denoising-decoder-ind-net checkpoint for epoch {epoch} to {save_dir} as {denoising_dec_ind_checkpoint_path}")
+                    print(f"Saved model denoising-encoder-dep-net checkpoint for epoch {epoch} to {save_dir} as {denoising_enc_checkpoint_path}")
+                    print(f"Saved model denoising-decoder-dep-net checkpoint for epoch {epoch} to {save_dir} as {denoising_dec_checkpoint_path}")                                        
                     print(f"Saved model generative-net checkpoint for epoch {epoch} to {save_dir} as {gen_checkpoint_path}\n")                
 
     print('Training completed!')
@@ -148,9 +143,14 @@ def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001
 DDae = DDAE(num_nodes=50, latent_dim=20, op_dim=784, activation_type='relu', num_inf_layers=2, beta1=None, beta2=None, pre_trained=False, adversarial_cls=False,
                  num_gen_layers=3, output_activation_type=None, task='B', categorical_cross_entropy=None, num_classes=10, epsilon1=None, epsilon2=None, num_latents_for_pred=10, epoch_param=1, args=None)
               
-GDae = GDAE(num_nodes=64, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim_dep=8, denoise_lat_dim_ind=3, activation_type='relu', num_inf_layers=2, sigma=0.1, beta1=None, beta2=None, gamma=None,
+GDae = GDAE(num_nodes=64, num_denoise_nodes=64, latent_dim=20, op_dim=784, denoise_lat_dim=12, activation_type='relu', num_inf_layers=2, sigma=0.1, beta1=None, beta2=None, gamma=None,
                  num_gen_layers=3, num_denoise_layers=3, epoch_restore=None, conv_net=False, output_activation_type=None, task='B', pre_trained=False, num_latents_for_pred=10, args=None)
 
+num_epochs = 30
+train(DDae, Bdataset_obj, optimizer='Rmsprop', visualize=False, save=True, seed=1211, step_size=0.001, num_epochs=num_epochs)
+train(GDae, Bdataset_obj, optimizer='Rmsprop', visualize=False, save=True, seed=1211, step_size=0.001, num_epochs=num_epochs)
 
-train(DDae, Bdataset_obj, optimizer='Rmsprop', visualize=False, save=True, seed=1211, step_size=0.001, num_epochs=30)
-train(GDae, Bdataset_obj, optimizer='Rmsprop', visualize=False, save=True, seed=1211, step_size=0.001, num_epochs=30)
+
+#RESTORE MODEL WITH LAST EPOCH WEIGHTS (change num_epochs parameter to restore weights at a different epoch)
+DDae.restore_weights(epoch=num_epochs)
+GDae.restore_weights(epoch=num_epochs)

@@ -34,6 +34,7 @@ from sklearn.manifold import TSNE, MDS
 from sklearn.decomposition import PCA
 
 from models import DDAE, GDAE
+from import_data import Dataset
 
 def train(net, dataset, optimizer='adam', save=False, seed=1020, step_size=0.001, num_epochs=5, save_dir='saved_models'):
     np.random.seed(seed)
